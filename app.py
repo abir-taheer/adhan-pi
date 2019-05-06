@@ -1,13 +1,13 @@
-import json, time
+import json, time, os, re
 from datetime import datetime
-
 
 today = datetime.today().strftime('%Y-%m-%d')
 
 
 def update_times():
     import requests
-    api_data = requests.get("http://api.aladhan.com/v1/timingsByCity?city=New+York&country=United+States&method=8").json()
+    api_data = requests.get(
+        "http://api.aladhan.com/v1/timingsByCity?city=New+York&country=United+States&method=8").json()
     ptime = api_data["data"]["timings"]
     stored_data = {
         "date": today,
@@ -39,6 +39,7 @@ def update_times():
     f.close()
     return stored_data
 
+
 try:
     time_json = open("times.json", "r").read()
     times = json.loads(time_json)
@@ -57,6 +58,8 @@ for prayer in times["times"]:
         max_time = prayer_time
 
 if adhan_made:
+    time.sleep(60)
+    os.system("python3 " + os.path.realpath(__file__))
     exit()
 
 times["times"][current_prayer]["done"] = True
@@ -66,18 +69,14 @@ f.close()
 
 print("Adhan for " + prayer)
 
-import os, re
-
 
 cec_resp = os.popen('echo pow 0 | cec-client -s -d 1').read()
 
 status_search = re.finditer(r"(?<=\b(power\sstatus:)\s)(\w+)", cec_resp)
 
-
 for x in status_search:
     start = int(x.start())
     end = int(x.end())
-
 
 status = cec_resp[start:end]
 is_on = status == "on"
@@ -86,11 +85,11 @@ if not is_on:
     os.system("echo on 0 | cec-client -s -d 1")
     time.sleep(1)
 
-
 os.system('echo "as" | cec-client RPI -s -d 1')
 time.sleep(2)
 os.system("omxplayer --no-keys audio.mp3 &")
 
+os.system("python3 " + os.path.realpath(__file__))
 if not is_on:
     time.sleep(140)
     os.system("echo standby 0 | cec-client -s -d 1")
