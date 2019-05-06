@@ -67,7 +67,7 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 while not time.sleep(60):
     iterations_since_last_update += 1
     if iterations_since_last_update > 30:
-        if os.popen("cd " + current_dir + " ; git pull").read() == "Already up-to-date.\n":
+        if os.popen("cd " + current_dir + " ; git pull").read() != "Already up-to-date.\n":
             restart_program()
 
     today = datetime.today().strftime('%Y-%m-%d')
