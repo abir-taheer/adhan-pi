@@ -8,7 +8,7 @@ from datetime import datetime
 def update_times():
     import requests
     api_data = requests.get(
-        "http://api.aladhan.com/v1/timingsByCity?city=New+York&country=United+States&method=8").json()
+        "http://api.aladhan.com/v1/timingsByCity?city=New+York&country=United+States&method=2").json()
     ptime = api_data["data"]["timings"]
     stored_data = {
         "date": today,
