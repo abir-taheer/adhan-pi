@@ -47,12 +47,14 @@ except:
     times = update_times()
 
 adhan_made = True
+max_time = None
 
 for prayer in times["times"]:
     prayer_time = datetime.strptime(times["times"][prayer]["time"], '%H:%M').time()
-    if prayer_time < datetime.today().time():
+    if prayer_time < datetime.today().time() and (max_time is None or prayer_time > max_time):
         current_prayer = prayer
         adhan_made = times["times"][prayer]["done"]
+        max_time = prayer_time
 
 if adhan_made:
     exit()
@@ -61,6 +63,8 @@ times["times"][current_prayer]["done"] = True
 f = open("times.json", "w")
 f.write(json.dumps(times))
 f.close()
+
+print("Adhan for " + prayer)
 
 import os, re
 
