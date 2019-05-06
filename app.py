@@ -2,7 +2,28 @@ import json
 import os
 import re
 import time
+import sys
+import psutil
+import logging
 from datetime import datetime
+
+iterations_since_last_update = 0
+
+
+def restart_program():
+    """Restarts the current program, with file objects and descriptors
+       cleanup
+    """
+
+    try:
+        p = psutil.Process(os.getpid())
+        for handler in p.get_open_files() + p.connections():
+            os.close(handler.fd)
+    except Exception as e:
+        logging.error(e)
+
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
 
 
 def update_times():
@@ -41,7 +62,14 @@ def update_times():
     return stored_data
 
 
+current_dir = os.path.dirname(os.path.realpath(__file__))
+
 while not time.sleep(60):
+    iterations_since_last_update += 1
+    if iterations_since_last_update > 30:
+        if os.popen("cd " + current_dir + " ; git pull").read() == "Already up-to-date.\n":
+            restart_program()
+
     today = datetime.today().strftime('%Y-%m-%d')
     try:
         time_json = open("times.json", "r").read()
@@ -84,7 +112,7 @@ while not time.sleep(60):
         time.sleep(2)
 
         adhan_name = "fajr_adhan.mp3" if is_fajr else "standard_adhan.mp3"
-        adhan_length = 190 if is_fajr else 140
+        adhan_length = 190
         os.system("omxplayer --no-keys " + adhan_name + " &")
 
         time.sleep(adhan_length)
