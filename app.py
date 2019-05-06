@@ -59,7 +59,7 @@ for prayer in times["times"]:
 
 if adhan_made:
     time.sleep(60)
-    os.system("python3 " + os.path.realpath(__file__))
+    os.system("python3 " + os.path.realpath(__file__) + " &")
     exit()
 
 times["times"][current_prayer]["done"] = True
@@ -67,7 +67,7 @@ f = open("times.json", "w")
 f.write(json.dumps(times))
 f.close()
 
-print("Adhan for " + prayer)
+print("Adhan for " + current_prayer)
 
 
 cec_resp = os.popen('echo pow 0 | cec-client -s -d 1').read()
@@ -89,7 +89,7 @@ os.system('echo "as" | cec-client RPI -s -d 1')
 time.sleep(2)
 os.system("omxplayer --no-keys audio.mp3 &")
 
-os.system("python3 " + os.path.realpath(__file__))
+os.system("python3 " + os.path.realpath(__file__) + " &")
 if not is_on:
     time.sleep(140)
     os.system("echo standby 0 | cec-client -s -d 1")
