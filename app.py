@@ -1,7 +1,8 @@
-import json, time, os, re
+import json
+import os
+import re
+import time
 from datetime import datetime
-
-today = datetime.today().strftime('%Y-%m-%d')
 
 
 def update_times():
@@ -40,56 +41,48 @@ def update_times():
     return stored_data
 
 
-try:
-    time_json = open("times.json", "r").read()
-    times = json.loads(time_json)
-    assert (times["date"] == today), "Prayer times are not up to date"
-except:
-    times = update_times()
+while not time.sleep(60):
+    today = datetime.today().strftime('%Y-%m-%d')
+    try:
+        time_json = open("times.json", "r").read()
+        times = json.loads(time_json)
+        assert (times["date"] == today), "Prayer times are not up to date"
+    except:
+        times = update_times()
 
-adhan_made = True
-max_time = None
+    adhan_made = True
+    max_time = None
 
-for prayer in times["times"]:
-    prayer_time = datetime.strptime(times["times"][prayer]["time"], '%H:%M').time()
-    if prayer_time < datetime.today().time() and (max_time is None or prayer_time > max_time):
-        current_prayer = prayer
-        adhan_made = times["times"][prayer]["done"]
-        max_time = prayer_time
+    for prayer in times["times"]:
+        prayer_time = datetime.strptime(times["times"][prayer]["time"], '%H:%M').time()
+        if prayer_time < datetime.today().time() and (max_time is None or prayer_time > max_time):
+            current_prayer = prayer
+            adhan_made = times["times"][prayer]["done"]
+            max_time = prayer_time
 
-if adhan_made:
-    time.sleep(60)
-    os.system("python3 " + os.path.realpath(__file__) + " &")
-    exit()
+    if not adhan_made:
+        times["times"][current_prayer]["done"] = True
+        f = open("times.json", "w")
+        f.write(json.dumps(times))
+        f.close()
 
-times["times"][current_prayer]["done"] = True
-f = open("times.json", "w")
-f.write(json.dumps(times))
-f.close()
+        cec_resp = os.popen('echo pow 0 | cec-client -s -d 1').read()
+        status_search = re.finditer(r"(?<=\b(power\sstatus:)\s)(\w+)", cec_resp)
+        for x in status_search:
+            start = int(x.start())
+            end = int(x.end())
 
-print("Adhan for " + current_prayer)
+        status = cec_resp[start:end]
+        is_on = status == "on"
 
+        if not is_on:
+            os.system("echo on 0 | cec-client -s -d 1")
+            time.sleep(1)
 
-cec_resp = os.popen('echo pow 0 | cec-client -s -d 1').read()
+        os.system('echo "as" | cec-client RPI -s -d 1')
+        time.sleep(2)
+        os.system("omxplayer --no-keys audio.mp3 &")
 
-status_search = re.finditer(r"(?<=\b(power\sstatus:)\s)(\w+)", cec_resp)
-
-for x in status_search:
-    start = int(x.start())
-    end = int(x.end())
-
-status = cec_resp[start:end]
-is_on = status == "on"
-
-if not is_on:
-    os.system("echo on 0 | cec-client -s -d 1")
-    time.sleep(1)
-
-os.system('echo "as" | cec-client RPI -s -d 1')
-time.sleep(2)
-os.system("omxplayer --no-keys audio.mp3 &")
-
-os.system("python3 " + os.path.realpath(__file__) + " &")
-if not is_on:
-    time.sleep(140)
-    os.system("echo standby 0 | cec-client -s -d 1")
+        if not is_on:
+            time.sleep(140)
+            os.system("echo standby 0 | cec-client -s -d 1")

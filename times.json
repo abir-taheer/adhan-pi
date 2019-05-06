@@ -1,1 +1,1 @@
-{"date": "2019-05-05", "times": {"Asr": {"done": false, "time": "16:45"}, "Isha": {"done": false, "time": "21:26"}, "Maghrib": {"done": true, "time": "19:56"}, "Fajr": {"done": false, "time": "03:52"}, "Dhuhr": {"done": false, "time": "12:53"}}}
+{"date": "2019-05-06", "times": {"Fajr": {"time": "03:50", "done": false}, "Dhuhr": {"time": "12:53", "done": false}, "Asr": {"time": "16:46", "done": false}, "Maghrib": {"time": "19:57", "done": false}, "Isha": {"time": "21:27", "done": false}}}
