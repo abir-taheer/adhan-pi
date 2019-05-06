@@ -61,6 +61,7 @@ while not time.sleep(60):
             max_time = prayer_time
 
     if not adhan_made:
+        is_fajr = current_prayer == "Fajr"
         times["times"][current_prayer]["done"] = True
         f = open("times.json", "w")
         f.write(json.dumps(times))
@@ -81,8 +82,15 @@ while not time.sleep(60):
 
         os.system('echo "as" | cec-client RPI -s -d 1')
         time.sleep(2)
-        os.system("omxplayer --no-keys audio.mp3 &")
+
+        adhan_name = "fajr_adhan.mp3" if is_fajr else "standard_adhan.mp3"
+        adhan_length = 190 if is_fajr else 140
+        os.system("omxplayer --no-keys " + adhan_name + " &")
+
+        time.sleep(adhan_length)
+
+        os.system("omxplayer --no-keys after_adhan.mp3 &")
 
         if not is_on:
-            time.sleep(140)
+            time.sleep(20)
             os.system("echo standby 0 | cec-client -s -d 1")
