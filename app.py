@@ -67,6 +67,7 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 while not time.sleep(60):
     iterations_since_last_update += 1
     if iterations_since_last_update > 30:
+        iterations_since_last_update = 0
         if os.popen("cd " + current_dir + " ; git pull").read() != "Already up-to-date.\n":
             restart_program()
 
@@ -106,19 +107,20 @@ while not time.sleep(60):
 
         if not is_on:
             os.system("echo on 0 | cec-client -s -d 1")
-            time.sleep(1)
+            time.sleep(3)
 
         os.system('echo "as" | cec-client RPI -s -d 1')
         time.sleep(2)
 
         adhan_name = "fajr_adhan.mp3" if is_fajr else "standard_adhan.mp3"
-        adhan_length = 190
+        adhan_length = 185
         os.system("omxplayer --no-keys " + adhan_name + " &")
 
         time.sleep(adhan_length)
 
         os.system("omxplayer --no-keys after_adhan.mp3 &")
 
+        os.system("clear")
         if not is_on:
             time.sleep(20)
             os.system("echo standby 0 | cec-client -s -d 1")
