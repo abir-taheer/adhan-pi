@@ -7,24 +7,6 @@ import psutil
 import logging
 from datetime import datetime
 
-iterations_since_last_update = 0
-
-
-def restart_program():
-    """Restarts the current program, with file objects and descriptors
-       cleanup
-    """
-
-    try:
-        p = psutil.Process(os.getpid())
-        for handler in p.get_open_files() + p.connections():
-            os.close(handler.fd)
-    except Exception as e:
-        logging.error(e)
-
-    python = sys.executable
-    os.execl(python, python, *sys.argv)
-
 
 def update_times():
     import requests
@@ -65,11 +47,6 @@ def update_times():
 current_dir = os.path.dirname(os.path.realpath(__file__))
 
 while not time.sleep(60):
-    iterations_since_last_update += 1
-    if iterations_since_last_update > 30:
-        iterations_since_last_update = 0
-        if os.popen("cd " + current_dir + " ; git pull").read() != "Already up-to-date.\n":
-            restart_program()
 
     today = datetime.today().strftime('%Y-%m-%d')
     try:
